@@ -12,6 +12,7 @@
 
     export default {
         name:"App",
+        // 汇总所有的组件
         components: {
             School,
             Student
