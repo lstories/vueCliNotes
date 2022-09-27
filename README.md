@@ -1,5 +1,4 @@
-# vueCliNotes
-
+# 笔记
 ## 脚手架文件结构
     |-- node_modules
     |-- public
@@ -138,7 +137,114 @@
 3. 使用v-model时要切记: v-model绑定的值不能是props传过来的值, 因为props是不可以修改的
 4. props传过来的若是对象类型的值, 修改对象中的属性时, vue不会报错, 但是不推荐这么做
 
-  
+## WebStorage
+1. 存储内容大小一般支持5MB左右(不同浏览器可能不一样)
+2. 浏览器端通过Window.sessionStorage和Window.localStorage属性来实现本地存储机制
+3. 相关API:
+    ```
+    xxxStorage.setItem('key','value');
+        该方法接收一个键和值作为参数, 会把键值对添加到存储中, 如果键名存在, 则更新其对应的值
+    xxxStorage.getItem('key');
+        该方法接收一个键名作为参数, 返回键名对应的值
+    xxxStorage.removeItem('key');
+        该方法接收一个键名作为参数, 并把该键名从存储中删除
+    xxxStorage.clear();
+        该方法会清空存储中的所有数据
+    ```
+4. 备注:
+   - SessionStorage存储的内容会随着浏览器窗口关闭而消失
+   - LocalStorage存储的内容, 需要手动清除才会消失
+   - xxxStorage.getItem(xxx) 如果xxx对应的value获取不到, 那么getItem的返回值是null
+   - JSON.parse(null) 的结果依然是null
 
+## 组件的自定义事件
+1. 一种组件通信的方式, 适用于: **子组件===>父组件**
+2. 使用场景: A是父组件, B是子组件, B想给A传数据, 那么就要在A传数据, 那么就要在A中给B绑定自定义事件(事件的回溯在A中).
+3. 绑定自定义事件: 
+   - 第一种方式, 在父组件中: ``` <Demo @atguigu="test"/>或者<Demo v-on:atguigu="test"/> ```
+   - 第二种方式, 在父组件中:
+    ```
+    <Demo ref="demo"/>
+    .....
+    mounted(){
+        this.$refs.xxx.$on('atguigu',this.test)
+    }
+    ```
+   - 若想让自定义事件只能触发一次, 可以使用 once 修饰符, 或 $once 方法
+
+4. 触发自定义事件: this.$emit('atguigu', 数据)
+5. 解绑自定义事件: this.$off('atguigu')
+6. 组件上也可以绑定原生DOM事件, 需要使用 native 修饰符
+7. 注意: 通过 this.$refs.xxx.$on('atguigu',回调) 绑定自定义事件时, 回调要么配置在methods中, 要么用箭头函数, 否则this指向会指出问题
+
+## 全局事件总线(GlobalEventBus)
+1. 一种组件间通信的方式, 适用于任意组件间通信
+2. 安装全局事件总线:
+    ```
+    new Vue({
+        ....
+        beforeCreate(){
+            Vue.prototype.$bus = this   // 安装全局事件总线, $bus就是当前应用的vm
+        }
+        ....
+    })
+    ```
+3. 使用事件总线:
+   - 接收数据: A组件想接收数据, 则在A组件中给$bus绑定自定义事件, 事件的回调留在A组件自身
+        ```
+        methods(){
+            demo(data){...}
+        }
+        ......
+        mounted(){
+            this.$bus.$on('xxx',this.demo)
+        }
+        ```
+   - 提供数据: ```this.$bus.$emit('xxx',数据)```
+4. 最好在beforeDestroy钩子里, 用$off去解绑当前组件所用到的事件
+
+## 消息订阅与发布
+1. 一种组件间通信的方式, 适用于任意组件间通信
+2. 使用步骤: 
+   - 安装pubsub: ``` npm i pubsub-js ```
+   - 引入: ```import pubsub from 'pubsub-js'```
+   - 接收数据: A组件想接收数据, 则在A组件中订阅消息, 订阅的回调留在A组件自身
+        ```
+        methods(){
+            demo(data){....}
+        }
+        ....
+        mounted(){
+            this.pid - pubsub.subscribe('xxx',this.demo)    // 订阅消息
+        }
+        ```
+   - 提供数据: ``` pubsub.publish('xxx',数据) ```
+   - 最好在beforeDestroy钩子中, 用 ```pubSub.unsubscribe(pid)``` 去 ```<sapn style="color:red">取消订阅</span>```
+
+## nextTick
+1. 语法: this.$nextTick(回调函数)
+2. 作用: 在下一次DOM更新结束后执行其指定的回调
+3. 什么时候用: 当改变数据后, 要基于更新后的新DOM进行某些操作时, 要在nextTick所指定的回调函数中进行
+
+## Vue封装的过度与动画
+1. 作用: 在插入, 更新, 移除DOM元素时i, 在合适的时候给元素添加样式类名
+2. 如图
+3. 写法: 
+   - 准备好样式: 
+     - 元素进入的样式
+       - v-enter: 进入的起点
+       - v-enter-active: 进入过程中
+       - v-enter-to: 进入的终点
+     - 元素离开的样式:
+       - v-leave: 离开起点
+       - v-leave-active: 离开过程中
+       - v-leave-to: 离开的终点
+   - 使用 ```<transition>``` 包裹要过度的元素, 并配置name属性:
+    ```
+    <transition name="hello">
+        <h1 v-show="">你好啊</h1>
+    </transition>
+    ```
+   - 备注: 若有多个元素需要过度, 则需要使用: ```<transition-group>```, 且每个元素都要指定 **key** 值
 
 
