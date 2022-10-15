@@ -247,4 +247,93 @@
     ```
    - 备注: 若有多个元素需要过度, 则需要使用: ```<transition-group>```, 且每个元素都要指定 **key** 值
 
+## 插槽
+1. 作用: 让父组件可以向子组件指定位置插入html结构, 也是一种组件间通信的方式, 适用于 父组件 ==> 子组件
+2. 分类: 默认插槽, 具名插槽, 作用域插槽
+3. 使用方式: 
+   - 默认插槽:
+    ```
+    父组件中:
+    <Category>
+        <div>html结构1</div>
+    </Category>
 
+    子组件中:
+    <template>
+        <div>
+            <!-- 定义插槽 -->
+            <slot>插槽默认内容</slot>
+        </div>
+    </template>
+    ```
+   - 具名插槽:
+    ```
+    父组件中:
+    <Category>
+        <template slot="center">
+            <div>
+                html结构1
+            </div>
+        </template>
+        <template v-slot:footer>
+            <div>
+                html结构2
+            </div>
+        </template>
+    </Category>
+
+    子组件中:
+    <template>
+        <div>
+            <!-- 定义插槽 -->
+            <slot name="center">插槽默认内容</slot>
+            <slot name="footer">插槽默认内容</slot>
+        </div>
+    </template>
+    ```
+   - 作用域插槽:
+     - 理解: 数据在组件的自身, 但根据数据生成的结构需要组建的使用者来决定, (games数据在Category组件中, 但使用数据所遍历出来的结构由APP组件决定)
+     - 具体编码:
+        ```
+        父组件中:
+        <Category>
+            <template scope="scopeData">
+                <!-- 生成的ul列表 -->
+                <ul>
+                    <li v-for="g in scopeData.games" :key="g">{{g}}</li>
+                </ul>
+            </template>
+        </Category>
+        <Category title="游戏">
+            <template scope="Games">
+                <ol>
+                    <li v-for="(g,index) in Games.games" :key="index">{{g}}</li>
+                </ol>
+            </template>
+        </Category>    
+        <Category title="游戏">
+            <template scope="{games}">
+            <!-- <template slot=scope="{games}"> 另一种写法-->
+                <h4 v-for="(g,index) in games" :key="index">{{g}}</h4>
+            </template>
+        </Category>
+
+        子组件中:
+        <template>
+            <div>
+                <slot :games="games">插槽默认内容</slot>
+            </div>
+        </template>
+
+        <script scope>
+        export default {
+            name: 'Category',
+            props: ['title'],
+            data(){
+            return {
+              games:['红色警戒','穿越火线','劲舞团','超级玛丽       '],
+            }
+          },
+        }
+        </script>
+        ```
