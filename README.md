@@ -32,7 +32,7 @@
 1. 被用来给元素或子组件注册引用信息(id的替代者)
 2. 应用在html标签上获取的是真实DOM元素, 应用在组件标签上是组件实例对象(vc)
 3. 使用方式:
-```
+```JavaScript
 打标识: 
     <h1 ref="xxx">...</h1>
     或者
@@ -45,11 +45,11 @@
 功能: 让组件接收外部传过来的数据
 
 1. 传递数据
-    ```
+    ```JavaScript
         <Demo name="xxx"/>
     ```
 2. 接收数据:
-    ```
+    ```JavaScript
         第一种方式(只接收): 
             props: ['name','age',..]
         第二种方式:
@@ -82,7 +82,7 @@
 - 功能: 可以把多个组件公用的配置提取成一个混入对象
 - 使用方式:
   - 第一步, 定义混合. 例如:
-  ```
+  ```JavaScript
   {
     data(){...},
     methods:{...}
@@ -90,7 +90,7 @@
   }
   ```
   - 第二步, 使用混入. 例如: 
-  ```
+  ```JavaScript
   (1). 全局混入: Vue.mixin(xxx)
   (2). 局部混入: mixins:{'xxx'}
   ```
@@ -99,7 +99,7 @@
 - 功能: 用于增强Vue
 - 本质: 包含install方法的一个对象, install的第一个参数是Vue, 第二个以后的参数是插件使用者传递的数据
 - 定义插件:
-    ```
+    ```JavaScript
     对象.install = function(Vue, options){
         // 1. 全局过滤器
         Vue.filter(...)
@@ -141,7 +141,7 @@
 1. 存储内容大小一般支持5MB左右(不同浏览器可能不一样)
 2. 浏览器端通过Window.sessionStorage和Window.localStorage属性来实现本地存储机制
 3. 相关API:
-    ```
+    ```JavaScript
     xxxStorage.setItem('key','value');
         该方法接收一个键和值作为参数, 会把键值对添加到存储中, 如果键名存在, 则更新其对应的值
     xxxStorage.getItem('key');
@@ -163,7 +163,7 @@
 3. 绑定自定义事件: 
    - 第一种方式, 在父组件中: ``` <Demo @atguigu="test"/>或者<Demo v-on:atguigu="test"/> ```
    - 第二种方式, 在父组件中:
-    ```
+    ```JavaScript
     <Demo ref="demo"/>
     .....
     mounted(){
@@ -180,7 +180,7 @@
 ## 全局事件总线(GlobalEventBus)
 1. 一种组件间通信的方式, 适用于任意组件间通信
 2. 安装全局事件总线:
-    ```
+    ```JavaScript
     new Vue({
         ....
         beforeCreate(){
@@ -191,7 +191,7 @@
     ```
 3. 使用事件总线:
    - 接收数据: A组件想接收数据, 则在A组件中给$bus绑定自定义事件, 事件的回调留在A组件自身
-        ```
+        ```JavaScript
         methods(){
             demo(data){...}
         }
@@ -209,7 +209,7 @@
    - 安装pubsub: ``` npm i pubsub-js ```
    - 引入: ```import pubsub from 'pubsub-js'```
    - 接收数据: A组件想接收数据, 则在A组件中订阅消息, 订阅的回调留在A组件自身
-        ```
+        ```JavaScript
         methods(){
             demo(data){....}
         }
@@ -240,7 +240,7 @@
        - v-leave-active: 离开过程中
        - v-leave-to: 离开的终点
    - 使用 ```<transition>``` 包裹要过度的元素, 并配置name属性:
-    ```
+    ```JavaScript
     <transition name="hello">
         <h1 v-show="">你好啊</h1>
     </transition>
@@ -252,7 +252,7 @@
 2. 分类: 默认插槽, 具名插槽, 作用域插槽
 3. 使用方式: 
    - 默认插槽:
-    ```
+    ```JavaScript
     父组件中:
     <Category>
         <div>html结构1</div>
@@ -267,7 +267,7 @@
     </template>
     ```
    - 具名插槽:
-    ```
+    ```JavaScript
     父组件中:
     <Category>
         <template slot="center">
@@ -294,7 +294,7 @@
    - 作用域插槽:
      - 理解: 数据在组件的自身, 但根据数据生成的结构需要组建的使用者来决定, (games数据在Category组件中, 但使用数据所遍历出来的结构由APP组件决定)
      - 具体编码:
-        ```
+        ```JavaScript
         父组件中:
         <Category>
             <template scope="scopeData">
@@ -337,3 +337,246 @@
         }
         </script>
         ```
+
+## Vuex
+1. 概念
+   - 在Vue中实现集中式状态(数据)管理的一个Vue插件, 对Vue应用中多个组件的共享状态进行集中式的管理(读/写), 也是一种组件间通信的方式, 且适用于任意组件间通信
+2. 何时使用
+   - 多个组件需要共享数据时
+3. 搭建Vuex环境
+   - 创建文件 : ``` src/store/index.js ```
+    ```JavaScript
+    // 该文件用于创建vuex中最为核心的store
+    // 引入vue
+    import Vue from 'vue'
+
+    // 引入Vuex
+    import Vuex from 'vuex'
+    // 应用Vuex插件
+    Vue.use(Vuex)
+
+    // 准备 actions --- 用于相应组件的动作
+    const actions = {}
+
+    // 准备 mutations --- 用于操作数据(state)
+    const mutations = {}
+
+    // 准备 state --- 用于存储数据
+    const state = {}
+
+    // 创建 store (并暴露store)
+    export default new Vuex.Store({
+        action:actions,
+        mutations:mutations,
+        state:state
+        /**
+        action
+        mutations
+        state
+         */
+    })
+
+    // 暴露(导出)store
+    // export default store
+    ```
+   - 在``` main.js ```中创建vm时传入```store```配置项
+    ```JavaScript
+    // 引入store
+    import store from './store';
+
+    // 关闭Vue的生产提示
+    Vue.config.productionTip = false
+
+    // 使用插件
+    Vue.use(vueResource)
+
+    // 创建Vue实例对象---vm
+    new Vue({
+      el: '#app',  
+      render: h => h(App),
+      store, 
+      beforeCreate(){
+        // 此时这个this就是vm, 只不过这个时候还没有去解析模 板
+        Vue.prototype.$bus = this;  // 安装全局事件总线
+      }
+    });
+    ```
+4. 基本使用
+   - 初始化数据, 配置```actions```, 配置```mutations```, 操作文件```store.js```
+    ```JavaScript
+    //引入Vuex
+    import Vuex from 'vuex';
+    import Vue from "vue";
+
+    //使用vuex来集中管理状态,必要
+    //new store的前提是必须要使用Vuex插件
+    Vue.use(Vuex);
+
+    //创建actions(本质就是对象) 用于响应组件中的动作
+    const actions = {
+        //收到上下文对象(包含commit)和dispatch过来的值
+        // increment(context, value){
+        //     context.commit('INCREMENT', value);
+        // },
+        // decrement(context, value){
+        //     context.commit('DECREMENT', value);
+        // },
+        incrementIfOdd(context, value){
+            // console.log(`action中的incrementIfOdd被调用  `);
+            // console.log('处理了一些事情');
+            // context.dispatch('demo1', value);
+            if(context.state.sum % 2) {
+                console.log('@')
+                context.commit('INCREMENT',value);
+                // context.state.sum += 1;//这样可以实现但  是记住本次对状态的改变开发者工具将无法捕获，  因为开发者工具是对mutations对话的
+            }
+        },
+        incrementWait(context, value){
+            setTimeout(() => {
+                context.commit('INCREMENT', value);
+            },500)
+        },
+        // demo1(context, value){
+        //     console.log('处理了一些事情---demo1');
+        //     context.dispatch('demo2', value);
+        // },
+        // demo2(context, value){
+        //     console.log('在action的demo中完成最终的逻辑  ');
+        //     if(context.state.sum % 2) {
+        //         console.log('@')
+        //         context.commit('INCREMENT',value);
+        //     }
+        // }
+    }
+
+    //创建mutations(本质也是对象) 用于修改数据(state)
+    const mutations = {
+        //收到state和要操作数value
+        INCREMENT(state, value) {
+            state.sum += value;
+        },
+        DECREMENT(state, value) {
+            state.sum -= value;
+        },
+    }
+
+    //创建并暴露store
+    export default new Vuex.Store({
+        actions,
+        mutations,
+        state,
+        getters
+    });
+    ```
+   - 组件中读取vuex中的数据: ```$store.state.sum```
+   - 组件中修改vuex中的数据: ```$store.dispatch('action中的方法名', 数据)```或```$store.commit('mutations中的方法名', 数据)```
+   - 备注: 若没有网络请求或其他业务逻辑, 组件也可以越过actions, 即不写```dispatch```, 直接编写```commit```
+
+6. 四个map方法的使用
+   - mapState方法: 用于帮助我们映射```state```中的数据为计算属性
+    ```JavaScript
+    computed:{
+        //借助mapState从state中生成计算属性,对象写法
+        // ... mapState({
+        //   sum:'sum',
+        //   school: 'school',
+        //   subject: 'subject'
+        // }),
+        //借助mapState从state中生成计算属性,数组写法(即代表了生成的计算属性名为sum，同时也代表了从state找到 sum)
+        ... mapState(['sum', 'school', 'subject']),
+    }
+    ```
+   - mapGetters方法: 用于帮助我们映射```getters```中的数据为计算属性
+    ```JavaScript
+    computed:{
+        //借助mapGetters从getters中生成计算属性,对象写法
+        // ...mapGetters({ bigSum: 'bigSum' }),
+        //借助mapGetters从getters中生成计算属性,数组写法
+        ...mapGetters(['bigSum']),
+    }
+    ```
+   - mapActions方法: 用于帮助我们生成于```actions```对话的方法, 即: 包含```$store.dispatch(xxx)```的函数
+    ```JavaScript
+    methods:{
+        // ...mapActions({
+        //   incrementIfOdd: 'incrementIfOdd',
+        //   incrementWait: 'incrementWait',
+        // }),
+        ...mapActions(['incrementWait',     'incrementIfOdd']), //数组写法,同上
+      },
+    ```
+
+   - mapMutaions方法: 用于帮助我们生成于```mutations```对话的方法, 即: 包含```$store.commit(xxx)```的函数
+    ```JavaScript
+    methods:{
+        //借助mapMutations生成对应方法，方法会调用commit去  联系mutations，对象写法
+        ...mapMutations({
+          increment: 'INCREMENT',
+          decrement: 'DECREMENT',
+        }),
+        //借助数组写法生成方法,但注意你生成的方法名和   mutations里对应的方法名将会一样的
+        // ...mapMutations(['increment', 'decrement']),
+        //借助mapMutations生成对应方法，方法会调用dispatch  去联系actions，对象写法
+    }
+    ```
+## 模块化+ 命名空间
+1. 目的: 让代码更好维护, 让多种数据分类更加明确
+2. 修改```store.js```
+    ```JavaScript
+    // 求和功能相关的配置
+    const conuntOptions = {
+        // 命名空间开启
+        namespaced: true,
+        actions:{...},
+        mutations: {...},
+        state: {...},
+        getters: {
+            bigSum(state){
+                return state.sum * 10;
+            }
+        },
+    }
+    // 人员管理功能相关的配置
+    const personOptions = {
+        namespaced: true,
+        actions:{...},
+        mutations: {...},
+        state: {...},
+        getters: {...},
+    }
+    //创建并暴露store
+    export default new Vuex.Store({
+        modules:{
+            countAbout: conuntOptions,
+            personAbout: personOptions
+        }
+    });
+    ```
+3. 开启命名空间后, 组件中读取state数据:
+    ```JavaScript
+    // 1. 自己直接读取
+    this.$store.state.personAbout.list
+    // 2. 借助mapState读取
+    ... mapState('countAbout', ['sum', 'school', 'subject']),
+    ```
+4. 开启命名空间后, 组件中读取getters数据:
+    ```JavaScript
+    // 1. 自己直接读取
+    this.$store.getters['personAbout/firstPersonName']
+    // 2. 借助mapGetters读取
+    ... mapGetters('countAbout',{ bigSum: 'bigSum' }),
+    ```
+5. 开启命名空间后, 组件中调用dispatch
+    ```JavaScript
+    // 1. 自己直接dispatch
+    this.$store.dispatch('personAbout/addPersonServer', person)
+    // 2. 借助mapActions
+    ...mapActions('countAbout', {incrementIfOdd: 'incrementIfOdd',incrementWait: 'incrementWait',}),
+    ```
+6. 开启命名空间后, 组件中调用commit
+    ```JavaScript
+    // 1. 自己直接commit
+    this.$store.commit('personAbout/ADD_PERSON', personObj)
+    // 2. 借助mapMutations
+    ...mapMutations('countAbout', {increment: 'INCREMENT',decrement: 'DECREMENT',}),
+    ```
