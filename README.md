@@ -32,7 +32,7 @@
 1. 被用来给元素或子组件注册引用信息(id的替代者)
 2. 应用在html标签上获取的是真实DOM元素, 应用在组件标签上是组件实例对象(vc)
 3. 使用方式:
-```
+```JavaScript
 打标识: 
     <h1 ref="xxx">...</h1>
     或者
@@ -45,11 +45,11 @@
 功能: 让组件接收外部传过来的数据
 
 1. 传递数据
-    ```
+    ```JavaScript
         <Demo name="xxx"/>
     ```
 2. 接收数据:
-    ```
+    ```JavaScript
         第一种方式(只接收): 
             props: ['name','age',..]
         第二种方式:
@@ -82,7 +82,7 @@
 - 功能: 可以把多个组件公用的配置提取成一个混入对象
 - 使用方式:
   - 第一步, 定义混合. 例如:
-  ```
+  ```JavaScript
   {
     data(){...},
     methods:{...}
@@ -90,7 +90,7 @@
   }
   ```
   - 第二步, 使用混入. 例如: 
-  ```
+  ```JavaScript
   (1). 全局混入: Vue.mixin(xxx)
   (2). 局部混入: mixins:{'xxx'}
   ```
@@ -99,7 +99,7 @@
 - 功能: 用于增强Vue
 - 本质: 包含install方法的一个对象, install的第一个参数是Vue, 第二个以后的参数是插件使用者传递的数据
 - 定义插件:
-    ```
+    ```JavaScript
     对象.install = function(Vue, options){
         // 1. 全局过滤器
         Vue.filter(...)
@@ -141,7 +141,7 @@
 1. 存储内容大小一般支持5MB左右(不同浏览器可能不一样)
 2. 浏览器端通过Window.sessionStorage和Window.localStorage属性来实现本地存储机制
 3. 相关API:
-    ```
+    ```JavaScript
     xxxStorage.setItem('key','value');
         该方法接收一个键和值作为参数, 会把键值对添加到存储中, 如果键名存在, 则更新其对应的值
     xxxStorage.getItem('key');
@@ -163,7 +163,7 @@
 3. 绑定自定义事件: 
    - 第一种方式, 在父组件中: ``` <Demo @atguigu="test"/>或者<Demo v-on:atguigu="test"/> ```
    - 第二种方式, 在父组件中:
-    ```
+    ```JavaScript
     <Demo ref="demo"/>
     .....
     mounted(){
@@ -180,7 +180,7 @@
 ## 全局事件总线(GlobalEventBus)
 1. 一种组件间通信的方式, 适用于任意组件间通信
 2. 安装全局事件总线:
-    ```
+    ```JavaScript
     new Vue({
         ....
         beforeCreate(){
@@ -191,7 +191,7 @@
     ```
 3. 使用事件总线:
    - 接收数据: A组件想接收数据, 则在A组件中给$bus绑定自定义事件, 事件的回调留在A组件自身
-        ```
+        ```JavaScript
         methods(){
             demo(data){...}
         }
@@ -209,7 +209,7 @@
    - 安装pubsub: ``` npm i pubsub-js ```
    - 引入: ```import pubsub from 'pubsub-js'```
    - 接收数据: A组件想接收数据, 则在A组件中订阅消息, 订阅的回调留在A组件自身
-        ```
+        ```JavaScript
         methods(){
             demo(data){....}
         }
@@ -240,7 +240,7 @@
        - v-leave-active: 离开过程中
        - v-leave-to: 离开的终点
    - 使用 ```<transition>``` 包裹要过度的元素, 并配置name属性:
-    ```
+    ```JavaScript
     <transition name="hello">
         <h1 v-show="">你好啊</h1>
     </transition>
@@ -252,7 +252,7 @@
 2. 分类: 默认插槽, 具名插槽, 作用域插槽
 3. 使用方式: 
    - 默认插槽:
-    ```
+    ```JavaScript
     父组件中:
     <Category>
         <div>html结构1</div>
@@ -267,7 +267,7 @@
     </template>
     ```
    - 具名插槽:
-    ```
+    ```JavaScript
     父组件中:
     <Category>
         <template slot="center">
@@ -294,7 +294,7 @@
    - 作用域插槽:
      - 理解: 数据在组件的自身, 但根据数据生成的结构需要组建的使用者来决定, (games数据在Category组件中, 但使用数据所遍历出来的结构由APP组件决定)
      - 具体编码:
-        ```
+        ```JavaScript
         父组件中:
         <Category>
             <template scope="scopeData">
