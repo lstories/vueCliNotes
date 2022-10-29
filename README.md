@@ -580,3 +580,474 @@
     // 2. 借助mapMutations
     ...mapMutations('countAbout', {increment: 'INCREMENT',decrement: 'DECREMENT',}),
     ```
+
+## vue-router
+### 相关理解
+1. vue-router的理解
+   - vue 一个插件库, 专门用来实现 SPA 应用
+   - npm i vue-router
+   - Vue.use()
+2. 对SPA应用理解
+   - 单页web应用(single page web application, SPA)
+   - 整个应用只有一个完整的页面(index.html)
+   - 点击页面中的导航链接不会刷新页面, 只会做页面的局部更新
+   - 数据需要通过Ajax请求获取
+3. 路由的理解
+   - 什么是路由?
+     - 一个路由就是一组映射关系(key - value)
+     - key为路径, value 可能是 function 或者 component
+   - 路由分类
+     - 后端路由:
+       - 理解: value是function, 用于处理客户端提交的请求
+       - 工作过程: 服务器收到一个请求时, 根据请求路径找到匹配的函数来处理请求, 返回响应数据
+     - 前端路由:
+       - 理解: value是component, 用于展示页面内容
+       - 工作过程: 当浏览器的路径改变时, 对应的组件就会显示
+
+### 基本使用
+1. 安装vue-router, 命令: ```npm i vue-router```
+2. 应用插件: ````Vue.use(VueRouter)```
+3. 编写router配置项: 
+    ```JavaScript
+    // 该文件用于创建整个应用的路由器
+    import VueRouter from 'vue-router';
+    // 引入组件
+    import About from '../components/About';
+    import Home from '../components/Home';
+    // 创建一个路由器
+    // 暴露路由器第二种写法
+    export default new VueRouter({
+    //const router = new VueRouter({
+        routes: [
+            {
+                path: '/about',
+                component: About
+            },
+            {
+                path: '/home',
+                component: Home
+            }
+        ]
+    });
+    // 暴露路由器 , 第一种写法
+    // export default router;
+    ```
+4. 实现切换(active-class可配置高亮样式)
+    ```JavaScript
+    <router-link class="list-group-item" active-class="active" to="/home">Home</router-link>
+    ```
+5. 指定展示位置
+    ```JavaScript
+    <router-view></router-view>
+    ```
+### 几个注意点
+1. 路由组件通常存放在```pages```文件夹, 一般组件通常存放在```components```文件夹
+2. 通过切换, "隐藏"了路由组件, 默认是被销毁的, 需要的时候再去挂载
+3. 每个组件都有自己的``$route``属性, 里面存放着自己的路由信息
+4. 整个应用只有一个router, 可以通过组件 ``$router``属性获取到
+
+## 多级路由
+1. 配置路由规则, 使用```children```配置项:
+    ```JavaScript
+    // 该文件用于创建整个应用的路由器
+    import VueRouter from 'vue-router';
+    // 引入组件
+    import About from '../pages/About';
+    import Home from '../pages/Home';
+    import News from '../pages/News'
+    import Message from '../pages/Message'
+    // 创建一个路由器
+    // 暴露路由器第二种写法
+    export default new VueRouter({
+        routes: [
+            {
+                path: '/about',
+                component: About
+            },
+            {
+                path: '/home',
+                component: Home,
+                children:[
+                    {
+                        path: 'news',
+                        component: News,
+                    },
+                    {
+                        path: 'message',
+                        component: Message,
+                    }
+                ]
+            },
+        ]
+    });
+    ```
+2. 跳转(要写完整路径)
+    ```vue
+    <router-link to="/home/message">Message</router-link>
+    ```
+
+## 路由的query参数
+1. 传递参数
+    ```JavaScript
+    <li v-for="m in messageList" :key="m.id">
+        <!-- 跳转路由并携带query参数, to的字符串写法 -->
+        <!-- <router-link :to="`/home/message/detail?id=${m.id}&title=${m.title}`">{{m.title}}</router-link>&nbsp;&nbsp; -->
+
+        <!-- 跳转路由并携带query参数, to的对象写法 -->
+        <router-link :to="{
+          path:'/home/message/detail',
+          query:{
+            id:m.id,
+            title:m.title
+          }
+        }">
+        {{m.title}}
+        </router-link>
+    </li>
+    ```
+2. 接收参数
+    ```JavaScript
+    $route.query.id
+    $route.query.title
+    ```
+
+## 命名路由
+1. 作用: 可以简化路由的跳转
+2. 如何使用
+   - 给路由命名: 
+        ```JavaScript
+        {
+            path: '/home',
+            component: Home,
+            children:[
+                {
+                    path: 'news',
+                    component: News,
+                },
+                {
+                    path: 'message',
+                    component: Message,
+                    children: [
+                        {
+                            name: 'xiangqing',
+                            path: 'detail',
+                            component:Detail,
+                        }
+                    ]
+                }
+            ]
+        },
+        ```
+   - 简化跳转:
+        ```JavaScript
+        <!-- 简化前, 需要写完整的路径 -->
+        <router-link to="/about">About</router-link>
+        <!-- 简化后, 直接通过名字跳转 -->
+        <router-link :to="{name:'guanyu'}">About</router-link>
+        <!-- 简化写法配合传递参数 -->
+        <router-link
+            :to="{
+                name:'hello',
+                query:{
+                    id:666,
+                    title:'你好'
+                }
+            }">跳转
+        </router-link>
+        ```
+
+## 路由的params参数
+1. 配置路由, 声明接收params参数
+    ```JavaScript
+    {
+        path: '/home',
+        component: Home,
+        children:[
+            {
+                path: 'news',
+                component: News,
+            },
+            {
+                path: 'message',
+                component: Message,
+                children: [
+                    {
+                        name: 'xiangqing',
+                        path: 'detail/:id/:title',  // 这里改了
+                        component:Detail,
+                    }
+                ]
+            }
+        ]
+    },
+    ```
+2. 传递参数
+    ```JavaScript
+    <li v-for="m in messageList" :key="m.id">
+        <!-- 跳转路由并携带params参数, to的字符串写法 -->
+        <!-- <router-link :to="`/home/message/detail/${m.id}/${m.title}`">{{m.title}}</router-link>&nbsp;&nbsp; -->
+
+        <!-- 跳转路由并携带params参数, to的对象写法 -->
+        <router-link :to="{
+          name:'xiangqing',
+          params:{
+            id:m.id,
+            title:m.title
+          }
+        }">
+        {{m.title}}
+        </router-link>
+    </li>
+    ```
+    **特别注意:** 路由携带params参数时, 若使用to的对象写法, 则不能使用path配置项, 必须使用name配置
+3. 接收参数
+    ```JavaScript
+    $route.params.id
+    $route.params.title
+    ```
+
+## 路由的props配置
+- 作用: 让路由组件更加方便的收到参数
+```JavaScript
+{
+    path: 'message',
+    component: Message,
+    children: [
+        {
+            name: 'xiangqing',
+            path: 'detail',
+            component:Detail,
+            // props的第一种写法, 值为对象
+            // 该对象中的所有key-value都会以props的形式传给Detail组件
+            // props: {a:1, b:'hello',}
+            // props的第二种写法, 值为布尔值, 若布尔值为真, 就会把该路由组件收到的所有params参数, 以props的形式传给Detail组件
+            // props: true
+            // props的第三种写法, 值为函数
+            props($route){
+                return {id:$route.query.id, title:$route.query.title}
+            }
+            // 第三种简化
+            // props({query}){
+            //     return {id:query.id, title:query.title}
+            // }
+            // 更简洁写法, 连续结构复制(但不推荐)
+            // props({query:{id, title}}){
+            //     return {id, title}
+            // }
+        }
+    ]
+}
+```
+
+## ```router-link```的replace属性
+1. 作用: 控制路由跳转时操作浏览器历史记录的模式
+2. 浏览器的历史有两种写入方式: 分别是``push``和``replace``
+   - push: 是追加历史记录
+   - replace: 是替换当前记录, 路由跳转时默认为 ``push``
+3. 如何开启``replace``模式: ``<router-link :replace="true" ....>About</router-link>
+``
+
+## 编程式路由导航
+1. 作用: 不借助``<router-link>``实现路由跳转, 让路由跳转更加灵活
+2. 具体编码:
+    ```JavaScript
+    pushShow(m){
+      // console.log(this.$router)
+      this.$router.push({
+        name:'xiangqing',
+          query:{
+            id:m.id,
+            title:m.title
+          }
+      })
+    },
+    replaceShow(m) {
+      this.$router.replace({
+        name:'xiangqing',
+          query:{
+            id:m.id,
+            title:m.title
+          }
+      })
+    }
+
+
+    // 连续后退两步  +2是前进两步
+    this.$router.go(-2)
+    // 前进
+    this.$router.forward()
+    // 后退
+    this.$router.back()
+    ```
+
+## 缓存路由组件
+1. 作用: 让步展示的路由组件保持挂载, 不被销毁
+2. 具体编码:
+    ```JavaScript
+    <keep-alive include="News">
+		<router-view></router-view>
+	</keep-alive>
+    ```
+
+## 两个新的生命周期钩子
+1. 作用: 路由组件所独有的两个钩子, 用于捕获由组件的激活状态
+2. 具体名字
+   - ```activated```路由组件被激活时触发
+   - ```deactivated```路由组件失活时触发
+
+## 路由守卫
+1. 作用: 对路由进行权限控制
+2. 分类: 全局守卫, 独享守卫, 组件内守卫
+3. 全局守卫:
+    ```JavaScript
+    // 全局前置路由守卫 -- 初始化的时候被调用, 每次路由切换之前被调用
+    router.beforeEach((to, from, next)=>{
+        console.log('前置路由守卫', to, from)
+        if(to.meta.isAuth){ // 判断是否需要鉴权
+        // if(to.path === '/home/news' || to.path === '/home/message'){
+            if(localStorage.getItem('school') === 'atlizhi'){
+                next()
+            } else {
+                alert('学校名不对, 无权限查看')
+            }
+        } else {
+            next()
+        }
+    })
+
+    // 全局后置路由守卫 -- 初始化的时候被调用, 每次路由切换之后被调用
+    router.beforeEach((to, from)=>{
+        console.log('后置路由守卫', to, from)
+        if(to.meta.title){
+            document.title = to.meta.title || 'lizhi系统'
+        } else {
+            document.title = 'vue_test'
+        }
+    })
+    ```
+4. 独享路由守卫:
+    ```JavaScript
+    {
+        name: 'xinwen',
+        path: 'news',
+        component: News,
+        meta: {isAuth:true, title:'新闻'},
+        beforeEnter: (to, from, next) => {
+            console.log('News独享路由守卫', to, from)
+            if(to.meta.isAuth){ // 判断是否需要鉴权
+            // if(to.path === '/home/news' || to.path === '/home/message'){
+                if(localStorage.getItem('school') === 'atlizhi'){
+                    next()
+                } else {
+                    alert('学校名不对, 无权限查看')
+                }
+            } else {
+                next()
+            }
+        },
+    },
+    ```
+5. 组件内守卫: 
+    ```JavaScript
+    // 通过路由规则, 进入该组件时被调用
+    beforeRouteEnter (to, from, next) {
+      console.log('组件路由beforeRouteEnter', to, from)
+      if(to.meta.isAuth){ // 判断是否需要鉴权
+      // if(to.path === '/home/news' || to.path === '/home/message'){
+          if(localStorage.getItem('school') === 'atlizhi'){
+              next()
+          } else {
+              alert('学校名不对, 无权限查看')
+          }
+      } else {
+          next()
+      }
+    },
+
+    // 通过路由规则, 离开该组件时被调用
+    beforeRouteLeave (to, from, next){
+      console.log('组件路由beforeRouteLeave', to, from)
+      next()
+    },
+    ```
+
+## 路由器的两种工作模式
+1. 对于一个url来说, 声明是hash值? ----- # 及其后面的内容就是hash值
+2. hash值不会包含在HTTP请求中, 即: hash值不会带给服务器
+3. hash模式:
+   - 地址中永远带着#号, 不美观
+   - 若以后降低至通过第三方手机app分析, 若app校验严格, 则地址会被标记为不合法
+   - 兼容性较好
+4. history模式:
+   - 地址干净, 美观
+   - 兼容性和hash模式相比较差
+   - 应用部署上线时需要后端人员支持, 解决刷新页面服务端404的问题
+5. 命令及过程
+```JavaScript
+// 打包项目 npm run build
+PS E:\vscode\reps\vue_test> npm run build
+
+> vue_test@0.1.0 build
+> vue-cli-service build
+
+All browser targets in the browserslist configuration have supported ES module.
+Therefore we don't build two separate bundles for differential loading.
+
+
+⠙  Building for production...
+
+ DONE  Compiled successfully in 16809ms                                                                                                                                                                                   10:58:29
+
+  File                                 Size                                                                                        Gzipped
+
+  dist\js\chunk-vendors.951869c5.js    133.37 KiB                                                                                  45.47 KiB
+  dist\js\app.838efee3.js              6.54 KiB                                                                                    2.60 KiB
+  dist\css\bootstrap.css               150.62 KiB                                                                                  21.19 KiB
+
+  Images and other types of assets omitted.
+  Build at: 2022-10-29T02:58:29.915Z - Hash: 3147264a5a0446a9 - Time: 16809ms
+
+ DONE  Build complete. The dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+
+
+// 创建一个小型的服务器命令
+PS D:\GitHub\Server> npm init
+This utility will walk you through creating a package.json file.
+It only covers the most common items, and tries to guess sensible defaults.
+
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
+
+Is this OK? (yes)
+PS D:\GitHub\Server>
+PS D:\GitHub\Server>
+PS D:\GitHub\Server> npm i express
+added 57 packages in 8s
+
+// 启动服务器
+PS D:\GitHub\Server> node server
+服务器启动成功了
+
+// 为了解决 history 方式的地址访问的问题
+// 安装 npm 的中间件, 处理404的问题
+PS D:\GitHub\Server> npm i connect-history-api-fallback
+added 1 package in 4s
+
+```
+
+## ElementUI
+1. 安装ElementUI
+```JavaScript
+PS E:\vscode\reps\vue_test> npm i element-ui
+```
+2. 按需引入安装
+```JavaScript
+npm install babel-plugin-component -D
+```
+
